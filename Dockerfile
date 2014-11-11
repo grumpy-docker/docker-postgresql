@@ -1,9 +1,8 @@
 # Based on:
-# https://github.com/srid/discourse-docker/blob/master/postgresql/Dockerfile
-# https://github.com/orchardup/docker-postgresql/blob/master/Dockerfile
+# https://github.com/kamui/docker-postgresql
 
 FROM ubuntu:14.04
-MAINTAINER Jack Chu "jack@jackchu.com"
+MAINTAINER Alex Sherwin "alex.sherwin@gmail.com"
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get -y update
@@ -36,6 +35,6 @@ ADD pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
 ADD run /usr/local/bin/run
 RUN chmod +x /usr/local/bin/run
 
-VOLUME ["/data"]
+VOLUME ["/data", "/xlog"]
 EXPOSE 5432
 CMD ["/usr/local/bin/run"]
