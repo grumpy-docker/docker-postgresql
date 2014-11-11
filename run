@@ -8,6 +8,7 @@ POSTGRESQL_DB=${POSTGRESQL_DB:-"docker"}
 POSTGRESQL_BIN_PATH=/usr/lib/postgresql/9.3/bin
 POSTGRESQL_CONFIG_FILE=/etc/postgresql/9.3/main/postgresql.conf
 POSTGRESQL_DATA=/data
+POSTGRESQL_XLOG=/xlog
 
 if find $POSTGRESQL_DATA -maxdepth 0 -empty | read v; then
     echo "Creating data dir..."
@@ -18,9 +19,10 @@ if find $POSTGRESQL_DATA -maxdepth 0 -empty | read v; then
     ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem $POSTGRESQL_DATA/server.crt
     ln -s /etc/ssl/private/ssl-cert-snakeoil.key $POSTGRESQL_DATA/server.key
     echo "Moving pg_xlog to docker volume /xlog"
-    mv $POSTGRESQL_DATA/pg_xlog/* /xlog
+    mv $POSTGRESQL_DATA/pg_xlog/* $POSTGRESQL_XLOG
     rmdir $POSTGRESQL_DATA/pg_xlog
-    ln -s /xlog $POSTGRESQL_DATA/pg_xlog
+    ln -s $POSTGRESQL_XLOG $POSTGRESQL_DATA/pg_xlog
+    chown -R postgres:postgres $POSTGRESQL_XLOG
     echo "Creating user $POSTGRESQL_USER"
     sudo -u postgres $POSTGRESQL_BIN_PATH/postgres --single --config-file=$POSTGRESQL_CONFIG_FILE <<< "CREATE USER \"$POSTGRESQL_USER\" WITH SUPERUSER;"
     sudo -u postgres $POSTGRESQL_BIN_PATH/postgres --single --config-file=$POSTGRESQL_CONFIG_FILE <<< "ALTER USER \"$POSTGRESQL_USER\" WITH PASSWORD '$POSTGRESQL_PASS';"
